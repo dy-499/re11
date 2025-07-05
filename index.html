@@ -1,13 +1,486 @@
-<html>
-	<head>
-		<title>第一个页面</title>
-	</head>
-	<body>以下是一张图片<br />
-		<img src="https://so.360tres.com/t114fa19f96ceb3d89b4ade03b9.jpg"> </img>
-		以下是百度链接<br />
-		<a href="https://www.baidu.com/?tn=57095150_10_oem_dg">百度一下</a>
-		html学习<br />
-		<p>good luck for you</p>
-		qqq<br />
-	</body>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 龙卷风模拟器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(to right, #ff9966, #ff5e62);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .simulation-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 500px;
+            background: rgba(0, 10, 30, 0.4);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: rgba(0, 20, 40, 0.5);
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+        
+        label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #a0d2ff;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff9966;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 150, 102, 0.5);
+        }
+        
+        .info-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        .info-card {
+            background: rgba(0, 15, 35, 0.6);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .info-card h3 {
+            color: #ff9966;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card p {
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.85);
+        }
+        
+        .info-card ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+        
+        .info-card li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .particle-counter {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #ffcc99;
+        }
+        
+        .interaction-note {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #a0d2ff;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .simulation-container {
+                height: 400px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .control-group {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>龙卷风模拟器</h1>
+            <p class="subtitle">使用HTML5 Canvas实现的龙卷风物理模拟。调整下方控制参数观察龙卷风的变化。</p>
+        </header>
+        
+        <div class="simulation-container">
+            <canvas id="tornadoCanvas"></canvas>
+            <div class="particle-counter">粒子数量: <span id="particleCount">1500</span></div>
+            <div class="interaction-note">点击并拖动鼠标与龙卷风交互</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label for="intensity">龙卷风强度</label>
+                <input type="range" id="intensity" min="0.5" max="2" step="0.1" value="1">
+            </div>
+            
+            <div class="control-group">
+                <label for="rotation">旋转速度</label>
+                <input type="range" id="rotation" min="0.5" max="3" step="0.1" value="1.5">
+            </div>
+            
+            <div class="control-group">
+                <label for="size">粒子大小</label>
+                <input type="range" id="size" min="1" max="5" step="0.5" value="2">
+            </div>
+            
+            <div class="control-group">
+                <label for="particles">粒子数量</label>
+                <input type="range" id="particles" min="500" max="3000" step="100" value="1500">
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-card">
+                <h3>⚡ 龙卷风物理原理</h3>
+                <p>龙卷风是一种剧烈旋转的气柱，从雷暴延伸到地面。它们形成于不稳定的大气条件下，当冷空气覆盖在暖湿空气之上时。</p>
+                <p>这个模拟使用粒子系统来表示龙卷风中的空气分子和碎片，应用了旋转力、重力和上升气流等物理原理。</p>
+            </div>
+            
+            <div class="info-card">
+                <h3>🌪️ 龙卷风等级</h3>
+                <ul>
+                    <li><strong>EF0</strong>: 风速 105-137 km/h (轻微破坏)</li>
+                    <li><strong>EF1</strong>: 138-177 km/h (中度破坏)</li>
+                    <li><strong>EF2</strong>: 178-217 km/h (较大破坏)</li>
+                    <li><strong>EF3</strong>: 218-266 km/h (严重破坏)</li>
+                    <li><strong>EF4</strong>: 267-322 km/h (毁灭性破坏)</li>
+                    <li><strong>EF5</strong>: >322 km/h (难以置信的破坏)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 获取Canvas元素和上下文
+        const canvas = document.getElementById('tornadoCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置Canvas尺寸
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // 龙卷风粒子类
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                // 粒子初始位置在底部
+                this.x = canvas.width / 2 + (Math.random() - 0.5) * 100;
+                this.y = canvas.height;
+                
+                // 粒子初始速度
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = -Math.random() * 4 - 2;
+                
+                // 粒子大小和透明度
+                this.size = Math.random() * 2 + 1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+                
+                // 粒子旋转角度和半径
+                this.angle = Math.random() * Math.PI * 2;
+                this.radius = Math.random() * 50 + 20;
+                
+                // 粒子颜色
+                const colors = [
+                    {r: 200, g: 200, b: 220}, // 浅灰色
+                    {r: 150, g: 150, b: 180}, // 中灰色
+                    {r: 120, g: 100, b: 100}, // 棕灰色
+                    {r: 100, g: 80, b: 80}    // 深棕色
+                ];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                this.color = `rgba(${color.r}, ${color.g}, ${color.b}, ${this.alpha})`;
+            }
+            
+            update(intensity, rotationSpeed, mouseX, mouseY, mouseDown) {
+                // 计算粒子到龙卷风中心的距离
+                const dx = this.x - canvas.width / 2;
+                const dy = this.y - canvas.height / 2;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                
+                // 粒子旋转角度增加
+                this.angle += rotationSpeed * 0.01 * (1 - this.y / canvas.height);
+                
+                // 计算旋转力
+                const force = 0.1 * intensity * (1 - this.y / canvas.height);
+                this.vx += Math.cos(this.angle) * force;
+                this.vy += Math.sin(this.angle) * force;
+                
+                // 应用重力
+                this.vy += 0.05;
+                
+                // 应用上升气流
+                this.vy -= (0.5 * intensity) * (1 - this.y / canvas.height);
+                
+                // 应用向心力
+                this.vx += (canvas.width / 2 - this.x) * 0.001;
+                this.vy += (canvas.height * 0.3 - this.y) * 0.001;
+                
+                // 鼠标交互
+                if (mouseDown) {
+                    const mouseDx = this.x - mouseX;
+                    const mouseDy = this.y - mouseY;
+                    const mouseDistance = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+                    
+                    if (mouseDistance < 100) {
+                        const forceFactor = Math.min(10 / mouseDistance, 0.5);
+                        this.vx += mouseDx * forceFactor * 0.05;
+                        this.vy += mouseDy * forceFactor * 0.05;
+                    }
+                }
+                
+                // 更新位置
+                this.x += this.vx;
+                this.y += this.vy;
+                
+                // 随机扰动
+                this.x += (Math.random() - 0.5) * 0.5;
+                this.y += (Math.random() - 0.5) * 0.5;
+                
+                // 如果粒子超出边界，重置
+                if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height * 1.2) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                ctx.beginPath();
+                ctx.fillStyle = this.color;
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // 创建粒子数组
+        let particles = [];
+        const maxParticles = 3000;
+        
+        // 初始化粒子
+        function initParticles(count) {
+            particles = [];
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+                
+                // 让粒子在垂直方向上均匀分布
+                particles[i].y = canvas.height - (i / count) * canvas.height;
+            }
+            document.getElementById('particleCount').textContent = count;
+        }
+        
+        // 鼠标交互变量
+        let mouseX = 0;
+        let mouseY = 0;
+        let mouseDown = false;
+        
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('mousedown', () => {
+            mouseDown = true;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            mouseDown = false;
+        });
+        
+        canvas.addEventListener('mouseleave', () => {
+            mouseDown = false;
+        });
+        
+        // 控制参数
+        let intensity = 1;
+        let rotationSpeed = 1.5;
+        let particleSize = 2;
+        let particleCount = 1500;
+        
+        // 设置控制事件
+        document.getElementById('intensity').addEventListener('input', (e) => {
+            intensity = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('rotation').addEventListener('input', (e) => {
+            rotationSpeed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('size').addEventListener('input', (e) => {
+            particleSize = parseFloat(e.target.value);
+            particles.forEach(p => p.size = Math.random() * particleSize + 1);
+        });
+        
+        document.getElementById('particles').addEventListener('input', (e) => {
+            particleCount = parseInt(e.target.value);
+            initParticles(particleCount);
+        });
+        
+        // 初始化粒子
+        initParticles(particleCount);
+        
+        // 动画循环
+        function animate() {
+            // 清除画布，使用半透明填充实现拖尾效果
+            ctx.fillStyle = 'rgba(0, 10, 30, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制地面
+            ctx.fillStyle = 'rgba(50, 40, 30, 0.6)';
+            ctx.fillRect(0, canvas.height * 0.9, canvas.width, canvas.height * 0.1);
+            
+            // 绘制云层背景
+            ctx.fillStyle = 'rgba(40, 40, 70, 0.4)';
+            for (let i = 0; i < 5; i++) {
+                const x = (Math.sin(Date.now() * 0.0001 + i) * 0.5 + 0.5) * canvas.width;
+                const y = 50 + i * 40;
+                const radius = 60 + i * 20;
+                ctx.beginPath();
+                ctx.arc(x, y, radius, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            
+            // 更新和绘制粒子
+            particles.forEach(particle => {
+                particle.update(intensity, rotationSpeed, mouseX, mouseY, mouseDown);
+                particle.draw();
+            });
+            
+            // 绘制龙卷风轮廓效果
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(200, 200, 220, 0.1)';
+            ctx.lineWidth = 30;
+            ctx.moveTo(canvas.width / 2, canvas.height * 0.9);
+            ctx.lineTo(canvas.width / 2, canvas.height * 0.1);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.strokeStyle = 'rgba(200, 200, 220, 0.05)';
+            ctx.lineWidth = 80;
+            ctx.moveTo(canvas.width / 2, canvas.height * 0.9);
+            ctx.lineTo(canvas.width / 2, canvas.height * 0.3);
+            ctx.stroke();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        // 启动动画
+        animate();
+    </script>
+</body>
 </html>
